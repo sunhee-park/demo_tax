@@ -31,7 +31,7 @@ public class ExternalHttpClient {
         // HttpClient 설정
         HttpClient httpClient = HttpClient.create(connectionProvider)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000) // 연결 타임아웃
-                .responseTimeout(java.time.Duration.ofSeconds(15));   // 응답 타임아웃
+                .responseTimeout(java.time.Duration.ofSeconds(20));   // 응답 타임아웃
 
         // WebClient 설정
         this.webClient = webClientBuilder

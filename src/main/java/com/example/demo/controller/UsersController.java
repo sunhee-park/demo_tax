@@ -22,7 +22,7 @@ public class UsersController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) throws Exception {
-        Users user = usersService.signup(request.getUserId(), request.getPassword(), request.getName(), request.getRegNo());
+        Users user = usersService.signup(request);
         return ResponseEntity.status(201).body("회원가입 성공!");
     }
 

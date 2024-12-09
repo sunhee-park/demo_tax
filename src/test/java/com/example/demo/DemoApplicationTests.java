@@ -1,10 +1,21 @@
 package com.example.demo;
 
+import com.example.demo.dto.SignupRequest;
+import com.example.demo.entity.IncomeDetails;
+import com.example.demo.entity.Users;
+import com.example.demo.exception.CustomException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.integration.ScrapClient;
 import com.example.demo.integration.incomescraping.IncomeResponse;
+import com.example.demo.repository.IncomeDetailsRepository;
+import com.example.demo.repository.UsersRepository;
+import com.example.demo.service.IncomeScrapingService;
+import com.example.demo.service.IncomeTaxCalculationService;
+import com.example.demo.service.UsersService;
 import com.example.demo.util.taxcalculator.TaxCalculator;
 import com.example.demo.util.taxcalculator.TaxCalculatorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,11 +31,39 @@ class DemoApplicationTests {
 	@Autowired
 	private ScrapClient scrapClient;
 
-	//@Autowired
-	//private IncomeScrapingService incomeScrapingService;
+	@Autowired
+	private IncomeScrapingService incomeScrapingService;
+
+	@Autowired
+	private IncomeTaxCalculationService incomeTaxCalculationService;
+
+	@Autowired
+	private UsersService usersService;
+
+	@Autowired
+	private IncomeDetailsRepository incomeDetailsRepository;
+
+	@Autowired
+	private UsersRepository usersRepository;
 
 	@Test
 	void contextLoads() {
+	}
+
+	@BeforeEach
+	void setUp() throws Exception {
+		String userId = "test5";
+		String password = "test5";
+		String name ="조조";
+		String regNo = "810326-2715702";
+
+		SignupRequest request = new SignupRequest();
+		request.setUserId(userId);
+		request.setPassword(password);
+		request.setName(name);
+		request.setRegNo(regNo);
+
+		usersService.signup(request);
 	}
 
 	// scraping data의 json to object mapping test
@@ -82,4 +121,44 @@ class DemoApplicationTests {
 		assertEquals(expectedTax, calculatedTax);
 
 	}
+
+	// scraping data service test
+	@Test
+	void testGetIncomeDetailsFromScrap_NewIncomeDetails() throws Exception {
+
+		String name = "조조";
+		String regNo = "810326-2715702";
+
+		IncomeDetails result = incomeScrapingService.getIncomeDetailsFromScrap(name, regNo);
+
+		assertEquals(new BigDecimal("60000000"), result.getTotalIncome());
+		assertEquals(new BigDecimal("2462100.17"), result.getDeductions());
+		assertEquals(new BigDecimal("300000"), result.getTaxCredit());
+
+	}
+
+	//calculate refund test
+	@Test
+	void testCalculateRefund(){
+
+		Long userId = 1L;
+
+		Users user = usersRepository.findById(userId)
+				.orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+		IncomeDetails incomeDetails = new IncomeDetails();
+		incomeDetails.setUser(user);
+		incomeDetails.setTotalIncome(new BigDecimal("60000000"));
+		incomeDetails.setTaxCredit(new BigDecimal("300000"));
+		incomeDetails.setDeductions(new BigDecimal("2462100.17"));
+
+		incomeDetailsRepository.save(incomeDetails);
+
+		String result = incomeTaxCalculationService.calculateRefund(userId);
+
+		assertEquals("7,749,096", result);
+	}
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.SignupRequest;
 import com.example.demo.entity.Users;
 import com.example.demo.exception.CustomException;
 import com.example.demo.exception.ErrorCode;
@@ -28,18 +29,13 @@ public class UsersService {
         this.rrnEncryptionUtil = rrnEncryptionUtil;
     }
 
-    public Users signup(String userId, String password, String name, String regNo) throws Exception {
+    public Users signup(SignupRequest request) throws Exception {
 
-        if (usersRepository.findByUserId(userId).isPresent()) {
+        if (usersRepository.findByUserId(request.getUserId()).isPresent()) {
             throw new CustomException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
-        Users user = new Users();
-        user.setUserId(userId);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setName(name);
-        user.setRegNo(rrnEncryptionUtil.encrypt(regNo));
-        return usersRepository.save(user);
+        return usersRepository.save(request.toEntity(passwordEncoder, rrnEncryptionUtil));
     }
 
     public String login(String userId, String password) {
