@@ -2,7 +2,6 @@ package com.example.demo;
 
 import com.example.demo.integration.ScrapClient;
 import com.example.demo.integration.incomescraping.IncomeResponse;
-import com.example.demo.service.IncomeScrapingService;
 import com.example.demo.util.taxcalculator.TaxCalculator;
 import com.example.demo.util.taxcalculator.TaxCalculatorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
