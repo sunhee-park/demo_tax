@@ -21,9 +21,9 @@ logging:
     org.springframework.web.reactive.function.client: DEBUG
 
 scrap:
-  base-url: "https://codetest-v4.3o3.co.kr"
-  end-point: "/scrap"
-  api-key: "G9fSpitmtAeKzYJC7X0SwA=="
+  base-url: ""
+  end-point: ""
+  api-key: ""
 
 encryption:
   secret-key: MySecretKey12345
